@@ -89,19 +89,18 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         
         // Проверяем, активно ли уже сообщение
         if isAlertPresented {
-            return
+            
+            let alert = UIAlertController(title: alertTitle, message: alertMessage, preferredStyle: .alert)
+            alert.addAction(UIAlertAction(title: "Ok", style: .default) { _ in
+                // Сбрасываем флаг, когда сообщение закрыто
+                self.isAlertPresented = false
+            })
+            
+            present(alert, animated: true)
+            // isAlertPresented = true
+            
+            print("animated  -  \(isAlertPresented)")
         }
-        
-        let alert = UIAlertController(title: alertTitle, message: alertMessage, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "Ok", style: .default) { _ in
-            // Сбрасываем флаг, когда сообщение закрыто
-            self.isAlertPresented = false
-        })
-        
-        present(alert, animated: true)
-       // isAlertPresented = true
-        
-        print("animated  -  \(isAlertPresented)")
     }
 }
 
