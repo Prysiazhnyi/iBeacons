@@ -10,11 +10,11 @@ import CoreLocation
 
 class ViewController: UIViewController, CLLocationManagerDelegate {
     
-    @IBOutlet var distanceReading: UILabel!
-    
     var locationManager: CLLocationManager?
     var isAlertPresented = true
-    
+
+    @IBOutlet var distanceReading: UILabel!
+
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -23,31 +23,33 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         locationManager?.requestAlwaysAuthorization()
         
         view.backgroundColor = .gray
-    }
-    
-    func locationManagerDidChangeAuthorization(_ manager: CLLocationManager) {
-        if manager.authorizationStatus == .authorizedAlways {
-            print("Разрешено всегда \(manager.authorizationStatus)")
-            if CLLocationManager.isMonitoringAvailable(for: CLBeaconRegion.self) {
-                if CLLocationManager.isRangingAvailable() {
-                    startScanning()
-                }
-            }
-        }
+        
+        startScanning() // запускаем поиск маяков
+        
     }
     
     func startScanning() {
-        let uuid = UUID(uuidString: "5A4BCFCE-174E-4BAC-A814-092E77F6B7E5")!
-        let beaconConstraint = CLBeaconIdentityConstraint(uuid: uuid, major: 123, minor: 456)
+        // Маяк 1
+        let uuid1 = UUID(uuidString: "5A4BCFCE-174E-4BAC-A814-092E77F6B7E5")!
+        let beaconConstraint1 = CLBeaconIdentityConstraint(uuid: uuid1, major: 123, minor: 456)
+        let beaconRegion1 = CLBeaconRegion(beaconIdentityConstraint: beaconConstraint1, identifier: "Beacon1")
+        locationManager?.startMonitoring(for: beaconRegion1)
+        locationManager?.startRangingBeacons(satisfying: beaconConstraint1)
         
-        // Мониторинг региона маяков (если это требуется)
-        let beaconRegion = CLBeaconRegion(beaconIdentityConstraint: beaconConstraint, identifier: "MyBeacon")
-        locationManager?.startMonitoring(for: beaconRegion)
+        // Маяк 2
+        let uuid2 = UUID(uuidString: "5A4BCFCE-174E-4BAC-A814-092E77F6B7E6")!
+        let beaconConstraint2 = CLBeaconIdentityConstraint(uuid: uuid2, major: 789, minor: 101)
+        let beaconRegion2 = CLBeaconRegion(beaconIdentityConstraint: beaconConstraint2, identifier: "Beacon2")
+        locationManager?.startMonitoring(for: beaconRegion2)
+        locationManager?.startRangingBeacons(satisfying: beaconConstraint2)
         
-        // Начало ранжирования маяков
-        locationManager?.startRangingBeacons(satisfying: beaconConstraint)
+        // Маяк 3
+        let uuid3 = UUID(uuidString: "5A4BCFCE-174E-4BAC-A814-092E77F6B7E7")!
+        let beaconConstraint3 = CLBeaconIdentityConstraint(uuid: uuid3, major: 112, minor: 113)
+        let beaconRegion3 = CLBeaconRegion(beaconIdentityConstraint: beaconConstraint3, identifier: "Beacon3")
+        locationManager?.startMonitoring(for: beaconRegion3)
+        locationManager?.startRangingBeacons(satisfying: beaconConstraint3)
     }
-    
     
     func update(distance: CLProximity) {
         UIView.animate(withDuration: 1) {
@@ -78,29 +80,20 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
     func locationManager(_ manager: CLLocationManager, didRangeBeacons beacons: [CLBeacon], in region: CLBeaconRegion) {
         if let beacon = beacons.first {
             update(distance: beacon.proximity)
-            alertBeacon(alertTitle: "Найден маячок", alertMessage: beacon.uuid.uuidString)
+            alertBeacon(alertTitle: "Найден маячок \(region.identifier)", alertMessage: beacon.uuid.uuidString)
         } else {
             update(distance: .unknown)
-            isAlertPresented = true
         }
     }
     
     func alertBeacon(alertTitle: String, alertMessage: String) {
-        
-        // Проверяем, активно ли уже сообщение
         if isAlertPresented {
-            
             let alert = UIAlertController(title: alertTitle, message: alertMessage, preferredStyle: .alert)
             alert.addAction(UIAlertAction(title: "Ok", style: .default) { _ in
-                // Сбрасываем флаг, когда сообщение закрыто
                 self.isAlertPresented = false
             })
             
             present(alert, animated: true)
-            // isAlertPresented = true
-            
-            print("animated  -  \(isAlertPresented)")
         }
     }
 }
-
